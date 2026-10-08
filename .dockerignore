@@ -1,0 +1,14 @@
+node_modules
+dist
+server.js
+.env
+.env.*
+!.env.example
+.git
+data
+scripts
+docs
+infra
+*.zip
+.e2e-cache
+.tmp

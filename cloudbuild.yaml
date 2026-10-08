@@ -1,0 +1,61 @@
+steps:
+  # 1. Build container image with Node 22 + ffmpeg (runs npm ci, npm run lint, npm test, and npm run build)
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '--build-arg'
+      - 'VITE_FIREBASE_API_KEY=${_VITE_FIREBASE_API_KEY}'
+      - '--build-arg'
+      - 'VITE_FIREBASE_AUTH_DOMAIN=${_VITE_FIREBASE_AUTH_DOMAIN}'
+      - '--build-arg'
+      - 'VITE_FIREBASE_PROJECT_ID=$PROJECT_ID'
+      - '--build-arg'
+      - 'VITE_FIREBASE_STORAGE_BUCKET=${_GCS_BUCKET}'
+      - '--build-arg'
+      - 'VITE_FIREBASE_APP_ID=${_VITE_FIREBASE_APP_ID}'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/vqc-app:$COMMIT_SHA'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/vqc-app:latest'
+      - '.'
+
+  # 2. Push image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - '--all-tags'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/vqc-app'
+
+  # 3. Deploy to Cloud Run using least-privilege runtime service account and explicit concurrency=1
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'vqc-app'
+      - '--image=${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/vqc-app:$COMMIT_SHA'
+      - '--region=${_REGION}'
+      - '--platform=managed'
+      - '--service-account=vqc-runtime-sa@$PROJECT_ID.iam.gserviceaccount.com'
+      - '--cpu=2'
+      - '--memory=2Gi'
+      - '--concurrency=1'
+      - '--timeout=900'
+      - '--min-instances=0'
+      - '--max-instances=5'
+      - '--allow-unauthenticated'
+      - '--set-env-vars=NODE_ENV=production,APP_SERVICE_NAME=vqc-app,GCP_PROJECT_ID=$PROJECT_ID,GCP_REGION=${_REGION},GCS_BUCKET=${_GCS_BUCKET},PUBLIC_APP_ORIGIN=${_PUBLIC_APP_ORIGIN},GEMINI_FAST_MODEL=${_GEMINI_FAST_MODEL},GEMINI_DEEP_MODEL=${_GEMINI_DEEP_MODEL}'
+
+substitutions:
+  _REGION: 'us-central1'
+  _GCS_BUCKET: 'analise-de-videos-vqc'
+  _PUBLIC_APP_ORIGIN: 'https://vqc-app-706973594445.us-central1.run.app'
+  _GEMINI_FAST_MODEL: 'gemini-2.5-flash'
+  _GEMINI_DEEP_MODEL: 'gemini-2.5-pro'
+  _VITE_FIREBASE_API_KEY: 'AIzaSyDfD6xMYuChJ3desKvuG_j63ZpW07E-I4s'
+  _VITE_FIREBASE_AUTH_DOMAIN: 'analise-de-videos-vqc.firebaseapp.com'
+  _VITE_FIREBASE_APP_ID: '1:706973594445:web:c9f2cac3bb3de05a183d04'
+
+images:
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/vqc-app:$COMMIT_SHA'
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/vqc-app:latest'

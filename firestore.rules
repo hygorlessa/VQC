@@ -1,0 +1,99 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(resourceData) {
+      return isSignedIn() && resourceData != null && resourceData.ownerId == request.auth.uid;
+    }
+
+    match /users/{userId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // All domain, AI pipeline, audit, and analytics collections are server-owned and
+    // mutated exclusively via authenticated Cloud Run API routes using the Admin SDK (P0-02).
+    match /games/{gameId} {
+      allow read: if isOwner(resource.data);
+      allow create, update, delete: if false;
+    }
+
+    match /clips/{clipId} {
+      allow read: if isOwner(resource.data);
+      allow create, update, delete: if false;
+    }
+
+    match /snaps/{snapId} {
+      allow read: if isOwner(resource.data);
+      allow create, update, delete: if false;
+    }
+
+    match /observations/{obsId} {
+      allow read: if isOwner(resource.data);
+      allow create, update, delete: if false;
+    }
+
+    match /tacticalAnalyses/{analysisId} {
+      allow read: if isOwner(resource.data);
+      allow create, update, delete: if false;
+    }
+
+    match /qcReviews/{reviewId} {
+      allow read: if isOwner(resource.data);
+      allow create, update, delete: if false;
+    }
+
+    match /revisions/{revisionId} {
+      allow read: if isOwner(resource.data);
+      allow create, update, delete: if false;
+    }
+
+    match /opponents/{opponentId} {
+      allow read: if isOwner(resource.data);
+      allow create, update, delete: if false;
+    }
+
+    match /players/{playerKey} {
+      allow read: if isOwner(resource.data);
+      allow create, update, delete: if false;
+    }
+
+    match /stSnaps/{stRecordId} {
+      allow read: if isOwner(resource.data);
+      allow create, update, delete: if false;
+    }
+
+    match /tendencies/{tendencyId} {
+      allow read: if isOwner(resource.data);
+      allow create, update, delete: if false;
+    }
+
+    match /vulnerabilities/{vulnerabilityId} {
+      allow read: if isOwner(resource.data);
+      allow create, update, delete: if false;
+    }
+
+    match /ruleLibrary/{ruleId} {
+      allow read: if isOwner(resource.data);
+      allow create, update, delete: if false;
+    }
+
+    match /engineConfigs/{ownerId} {
+      allow read: if isSignedIn() && request.auth.uid == ownerId;
+      allow create, update, delete: if false;
+    }
+
+    match /gameAuditJobs/{jobId} {
+      allow read: if isOwner(resource.data);
+      allow create, update, delete: if false;
+    }
+
+    match /analysisRuns/{runId} {
+      allow read: if isOwner(resource.data);
+      allow create, update, delete: if false;
+    }
+  }
+}
+

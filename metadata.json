@@ -1,0 +1,18 @@
+{
+  "name": "VQC \u2014 Virtual Quality Control & Advance Scout",
+  "description": "Specialized American Football film analysis, Quality Control, Advance Scout and Game Planning platform designed to operate like a digital college/professional coaching staff.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API",
+    "VQC_AGENT_ACCURACY_V7_1",
+    "INDEPENDENT_FORMATION_VERIFIER",
+    "EVIDENCE_VERIFIED_QC",
+    "EXTERNAL_CURRICULUM_V7_2",
+    "BIG_DATA_BOWL_GEOMETRY_MEMORY",
+    "VIDEONET_ACTION_MEMORY",
+    "SPORTR_GROUNDING_MEMORY",
+    "MUVY_VIEWPOINT_MEMORY"
+  ],
+  "version": "7.2.1",
+  "releaseFocus": "External Football Curriculum & Multisource Benchmark Memory"
+}

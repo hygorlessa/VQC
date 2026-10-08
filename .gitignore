@@ -1,0 +1,14 @@
+node_modules/
+build/
+dist/
+server.js
+coverage/
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+data/
+*.zip
+.e2e-cache/
+.tmp/
